@@ -1,7 +1,7 @@
-#ifdef __INTELLISENSE__
+#if defined  __INTELLISENSE__ || defined  __RESHARPER__
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#endif // __INTELLISENSE__
+#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -18,18 +18,23 @@
 const int W = 40;
 const int H = 12;
 
-__global__ void Draw(char *frame) {
+__global__ void Draw(char* frame)
+{
 	const int y = blockIdx.y * blockDim.y + threadIdx.y;
 	const int x = blockIdx.x * blockDim.x + threadIdx.x;
-	if (y < H && x < W) {
+	if (y < H && x < W)
+	{
 		char c;
-		if (x == W - 1) {
+		if (x == W - 1)
+		{
 			c = y == H - 1 ? '\0' : '\n';
 		}
-		else if (y == 0 || y == H - 1 || x == 0 || x == W - 2) {
+		else if (y == 0 || y == H - 1 || x == 0 || x == W - 2)
+		{
 			c = ':';
 		}
-		else {
+		else
+		{
 			c = ' ';
 			if (y > (H / 3) && (x > ((W / 3) - 4) + ((H - y - 3) * (W / 20)) && x < (((W / 3) * 2) - 4)))
 			{
@@ -57,14 +62,14 @@ __global__ void Draw(char *frame) {
 			}
 		}
 
-		frame[y*W + x] = c;
+		frame[y * W + x] = c;
 	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-	MemoryBuffer<char> frame(W*H);
-	auto frame_smem = frame.CreateSync(W*H);
+	MemoryBuffer<char> frame(W * H);
+	auto frame_smem = frame.CreateSync(W * H);
 	CHECK;
 
 	Draw<<<dim3((W - 1) / 16 + 1, (H - 1) / 12 + 1), dim3(16, 12)>>>(frame_smem.get_gpu_wo());
