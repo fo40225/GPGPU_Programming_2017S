@@ -1,3 +1,8 @@
+#if defined  __INTELLISENSE__ || defined  __RESHARPER__
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#endif
+
 #include <random>
 #include <vector>
 #include <tuple>
