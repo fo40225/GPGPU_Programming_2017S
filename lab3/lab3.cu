@@ -123,50 +123,47 @@ __global__ void CalculateFixed(
 
 		const int curb = wb * yb + xb;
 
-		if (0 <= yb && yb < hb && 0 <= xb && xb < wb)
+		auto idxCt = curt;
+		auto idxNt = 0 == yt ? curt : wt * (yt - 1) + xt;
+		auto idxWt = 0 == xt ? curt : wt * yt + (xt - 1);
+		auto idxSt = ht == yt + 1 ? curt : wt * (yt + 1) + xt;
+		auto idxEt = wt == xt + 1 ? curt : wt * yt + (xt + 1);
+
+		fixed[curt * 3 + 0] = 4.0f * target[idxCt * 3 + 0] - (target[idxNt * 3 + 0] + target[idxWt * 3 + 0] + target[idxSt * 3 + 0] + target[idxEt * 3 + 0]);
+		fixed[curt * 3 + 1] = 4.0f * target[idxCt * 3 + 1] - (target[idxNt * 3 + 1] + target[idxWt * 3 + 1] + target[idxSt * 3 + 1] + target[idxEt * 3 + 1]);
+		fixed[curt * 3 + 2] = 4.0f * target[idxCt * 3 + 2] - (target[idxNt * 3 + 2] + target[idxWt * 3 + 2] + target[idxSt * 3 + 2] + target[idxEt * 3 + 2]);
+
+		auto idxNb = yb < 0 ? wb * 0 + xb : wb * (yb - 1) + xb;
+		auto idxWb = xb < 0 ? wb * yb + 0 : wb * yb + (xb - 1);
+		auto idxSb = hb < yb ? wb * yb + xb : wb * (yb + 1) + xb;
+		auto idxEb = wb < xb ? wb * yb + xb : wb * yb + (xb + 1);
+
+		if (0 == yt || mask[idxNt] <= 127.0f)
 		{
-			auto idxCt = curt;
-			auto idxNt = 0 == yt ? curt : wt * (yt - 1) + xt;
-			auto idxWt = 0 == xt ? curt : wt * yt + (xt - 1);
-			auto idxSt = ht == yt + 1 ? curt : wt * (yt + 1) + xt;
-			auto idxEt = wt == xt + 1 ? curt : wt * yt + (xt + 1);
+			fixed[curt * 3 + 0] += background[idxNb * 3 + 0];
+			fixed[curt * 3 + 1] += background[idxNb * 3 + 1];
+			fixed[curt * 3 + 2] += background[idxNb * 3 + 2];
+		}
 
-			fixed[curt * 3 + 0] = 4.0f * target[idxCt * 3 + 0] - (target[idxNt * 3 + 0] + target[idxWt * 3 + 0] + target[idxSt * 3 + 0] + target[idxEt * 3 + 0]);
-			fixed[curt * 3 + 1] = 4.0f * target[idxCt * 3 + 1] - (target[idxNt * 3 + 1] + target[idxWt * 3 + 1] + target[idxSt * 3 + 1] + target[idxEt * 3 + 1]);
-			fixed[curt * 3 + 2] = 4.0f * target[idxCt * 3 + 2] - (target[idxNt * 3 + 2] + target[idxWt * 3 + 2] + target[idxSt * 3 + 2] + target[idxEt * 3 + 2]);
+		if (0 == xt || mask[idxWt] <= 127.0f)
+		{
+			fixed[curt * 3 + 0] += background[idxWb * 3 + 0];
+			fixed[curt * 3 + 1] += background[idxWb * 3 + 1];
+			fixed[curt * 3 + 2] += background[idxWb * 3 + 2];
+		}
 
-			auto idxNb = wb * (yb - 1) + xb;
-			auto idxWb = wb * yb + (xb - 1);
-			auto idxSb = wb * (yb + 1) + xb;
-			auto idxEb = wb * yb + (xb + 1);
+		if (ht == yt + 1 || mask[idxSt] <= 127.0f)
+		{
+			fixed[curt * 3 + 0] += background[idxSb * 3 + 0];
+			fixed[curt * 3 + 1] += background[idxSb * 3 + 1];
+			fixed[curt * 3 + 2] += background[idxSb * 3 + 2];
+		}
 
-			if (0 == yt || mask[idxNt] <= 127.0f)
-			{
-				fixed[curt * 3 + 0] += background[idxNb * 3 + 0];
-				fixed[curt * 3 + 1] += background[idxNb * 3 + 1];
-				fixed[curt * 3 + 2] += background[idxNb * 3 + 2];
-			}
-
-			if (0 == xt || mask[idxWt] <= 127.0f)
-			{
-				fixed[curt * 3 + 0] += background[idxWb * 3 + 0];
-				fixed[curt * 3 + 1] += background[idxWb * 3 + 1];
-				fixed[curt * 3 + 2] += background[idxWb * 3 + 2];
-			}
-
-			if (ht == yt + 1 || mask[idxSt] <= 127.0f)
-			{
-				fixed[curt * 3 + 0] += background[idxSb * 3 + 0];
-				fixed[curt * 3 + 1] += background[idxSb * 3 + 1];
-				fixed[curt * 3 + 2] += background[idxSb * 3 + 2];
-			}
-
-			if (wt == xt + 1 || mask[idxEt] <= 127.0f)
-			{
-				fixed[curt * 3 + 0] += background[idxEb * 3 + 0];
-				fixed[curt * 3 + 1] += background[idxEb * 3 + 1];
-				fixed[curt * 3 + 2] += background[idxEb * 3 + 2];
-			}
+		if (wt == xt + 1 || mask[idxEt] <= 127.0f)
+		{
+			fixed[curt * 3 + 0] += background[idxEb * 3 + 0];
+			fixed[curt * 3 + 1] += background[idxEb * 3 + 1];
+			fixed[curt * 3 + 2] += background[idxEb * 3 + 2];
 		}
 	}
 }
